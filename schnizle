@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+executable=dist/build/schnizle/schnizle
+
+function schnizle_exec {
+  if [ ! -e $executable ]; then
+    echo "[schnizle] binary is not build yet... building now.."
+    echo ""
+    cabal build
+    echo "...done"
+    echo ""
+  fi
+
+  $executable $@
+}
+
+
+function schnizle_build {
+ schnizle 
+}
+
+function schnizle_usage {
+  echo "$0 [command] [options]"
+  echo "commands:"
+  echo " b  build    - build schnizle"
+  echo " p  preview  - run preview server"
+  echo " d  deploy   - deploy to schnizle.in"
+  echo " n  new      - create a new post"
+  echo " c  cmd      - run a command on exectuable"
+}
+
+action=$1
+shift
+
+case $action in
+  "build"|"b")
+    cabal build
+    ;;
+  "preview"|"p")
+    cabal build
+    schnizle_exec clean
+    schnizle_exec watch
+    ;;
+  "deploy"|"d")
+    schnizle_exec deploy
+    ;;
+  "new"|"n")
+    schnizle_new_post $@
+    ;;
+  "cmd"|"c")
+    schnizle_exec $@
+    ;;
+  *)
+    schnizle_usage
+esac
+
+  

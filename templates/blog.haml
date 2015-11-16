@@ -1,0 +1,25 @@
+.container
+  $for(posts)$
+  .row.post
+    %a{:href => "$url$"}
+      .col-md-10.col-md-offset-1
+        %h1 $title$
+        %p 
+          %b $date$
+          under $tags$
+  $endfor$
+  .row
+    .col-md-2
+      $if(previousPageUrl)$
+      %a{:href => "$previousPageUrl$"}
+        %button.btn.btn-default
+          %i.fa.fa-chevron-left
+          show newer posts
+      $endif$
+    .col-md-2.col-md-offset-8
+      $if(nextPageUrl)$
+      %a{:href => "$nextPageUrl$"}
+        %button.btn.btn-default
+          show older posts
+          %i.fa.fa-chevron-right
+      $endif$
