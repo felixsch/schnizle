@@ -151,7 +151,7 @@ static int __init mymodule_init(void) {
 
 Tada! Easy right?
 
-## Hooking uname
+### Hooking uname
 
 Now we know the address, but now? We are going to replace a few bytes of the actual uname code and replace it with a basic jump instruction. The easiest way is to prepare a shellcode snippet which jumps to our function.
 
@@ -266,7 +266,7 @@ inline void restore_wp(unsigned long cr0)
 The last thing to write a `hook` and `unhook` function.
 Here is the complete code:
 
-```{.c .lineNumbers}
+```{.c .numberLines}
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/kallsyms.h>

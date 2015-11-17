@@ -12,6 +12,21 @@ body
 h1,h2
   font-family: 'Julius Sans One', sans-serif 
 
+h3
+  display: table
+  white-space: nowrap
+  padding: 20px 0
+  font-weight: bold
+  &:after
+    border-top: 1px solid #000
+    content: ''
+    display: table-cell
+    position: relative
+    top: 0.5em
+    width: 100%
+  &:after 
+    left: 1.5%
+
 .title
   font-family: 'Pacifico', sans-serif
   font-size: 16px

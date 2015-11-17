@@ -12,9 +12,10 @@ import Hakyll.Web.Sass
 import Schnizle.Haml
 import Schnizle.Config
 import Schnizle.Indexed
+import Schnizle.Fields
 
 postsPerPage :: Int
-postsPerPage = 4
+postsPerPage = 10
 
 main :: IO ()
 main = hakyllWith config $ do
@@ -85,6 +86,7 @@ postCtx tags = defaultContext
   <> dateField "month" "%m"
   <> dateField "year"  "%Y"
   <> dateField "created" "%Y-%m-%d"
+  <> relatedPostsField "related" 2 tags (postCtx tags)
   <> modificationTimeField "modified" "%Y-%m-%d"
   where
     tagList = intercalate "," $ map fst $ tagsMap tags

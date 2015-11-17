@@ -8,11 +8,11 @@
           %b $date$
           under $tags$
   $endfor$
-  .row
+  .row.top-spacer
     .col-md-2
       $if(previousPageUrl)$
       %a{:href => "$previousPageUrl$"}
-        %button.btn.btn-default
+        %button.btn.btn-default.pull-right
           %i.fa.fa-chevron-left
           show newer posts
       $endif$
