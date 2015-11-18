@@ -18,8 +18,9 @@
       .row
         %h2 Addition links
         $for(links)$
-        %p
-          %a{:href => "$link$"} $link$
+        .top-spacer
+          %p
+            %a.break-all{:href => "$link$"} $link$
         $endfor$
       $endif$
 

@@ -1,4 +1,4 @@
-@import url(https://fonts.googleapis.com/css?family=Julius+Sans+One|Raleway:400,700|Pacifico);
+@import url(https://fonts.googleapis.com/css?family=Julius+Sans+One|Raleway:400,700|Pacifico) 
 
 body, html
   height: 100%
@@ -8,6 +8,7 @@ body
   background-repeat: repeat
   padding-top: 50px
   font-family: 'Raleway', sans-serif
+  font-size: 14px
 
 h1,h2
   font-family: 'Julius Sans One', sans-serif 
@@ -27,6 +28,20 @@ h3
   &:after 
     left: 1.5%
 
+a, a:visited, a:active 
+  color: #000
+  text-decoration: none
+
+a:hover
+  color: #501975
+
+p 
+  a, a:active, a:visited
+    text-decoration: underline;
+
+img
+  max-width: 95%
+ 
 .title
   font-family: 'Pacifico', sans-serif
   font-size: 16px
@@ -34,15 +49,20 @@ h3
 
 .top-spacer
   padding-top: 15px
+ 
+.break-all
 
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 
-a, a:visited, a:active 
-  color: #000
-  text-decoration: underline
+  -ms-word-break: break-all;
+  word-break: break-all;
 
-a:hover
-  color: #501975
-  
+  /* Adds a hyphen where the word breaks, if supported (No Blink) */
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
 
 
 
@@ -101,10 +121,16 @@ a:hover
   p
     font-size: 1.5em
 
+
 .article
   font-size: 1.2em
+
 .article-title
   font-size: 3em
 
-/* -- 404 -------------------------------------------*/
+/* -- about -------------------------------------------*/
+
+.about-header
+  p
+    margin-top: 20px
 

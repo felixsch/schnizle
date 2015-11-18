@@ -8,7 +8,7 @@ __After using Fedora for quite a time, I wanted to test Centos for my workstatio
 
 
 
-![](http://none.io/share/c7-screenshot.png)
+![](http://schnizle.in/share/c7-screenshot.png)
 
 
 
@@ -131,6 +131,6 @@ Conclusion in short: Nice server OS but as Desktop distribution I will stay with
 
 And a new Fedora 21 with xmonad and Xfce looks great too!
 
-![](http://none.io/share/fedora21beta.png)
+![](http://schnizle.in/share/fedora21beta.png)
 
 

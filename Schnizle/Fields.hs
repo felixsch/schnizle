@@ -60,6 +60,8 @@ sortByFrequency ids = map snd $ sortBy (compare `on` fst) $
 additionalLinksField :: String -> Context String
 additionalLinksField name = listFieldWith name (field "link" (return . itemBody)) $ \item -> do
   meta <- getMetadata (itemIdentifier item)
+  unsafeCompiler $ putStrLn $ show $ meta
+  unsafeCompiler $ putStrLn $ "links: " ++ show (allLinks meta)
   mapM makeItem $ allLinks meta
   where
-    allLinks m = maybe [] (map trim . splitAll "|") $ M.lookup "links" m
+    allLinks m = maybe [] (map trim . splitAll " ") $ M.lookup "adds" m

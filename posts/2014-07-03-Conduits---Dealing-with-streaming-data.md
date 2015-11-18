@@ -2,7 +2,7 @@
 title: Conduits - Dealing with streaming data
 description: Introduction to a easy to use event driven streaming library in Haskell.
 tags: Haskell, Conduits, programming
-links: https://hackage.haskell.org/package/conduit|http://hackage.haskell.org/package/http-conduit|https://www.fpcomplete.com/school/to-infinity-and-beyond/pick-of-the-week/conduit-overview
+adds: https://hackage.haskell.org/package/conduit http://hackage.haskell.org/package/http-conduit https://www.fpcomplete.com/school/to-infinity-and-beyond/pick-of-the-week/conduit-overview
 ---
 
 __Most programmers already know how hard it can be to deal with streaming data in a nice and efficient way. The conduit package addresses the problems of working with streaming data and offers a solution to work, transform, consume streams of data in a event driven way. Conduit also takes care of the lifetime of data streams and organises the data do be proceeded with constant memory usage. In my opinion all this makes it worth to take a closer look to that neat solution.__
