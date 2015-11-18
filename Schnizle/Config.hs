@@ -1,6 +1,7 @@
 module Schnizle.Config
   ( config
   , pandocOptions
+  , feedConfig
   ) where
 
 import Hakyll
@@ -21,4 +22,14 @@ pandocOptions = defaultHakyllWriterOptions
     , O.writerHighlight = True
     , O.writerHighlightStyle = pygments
     , O.writerExtensions = O.githubMarkdownExtensions
+    }
+
+feedConfig :: FeedConfiguration
+feedConfig
+    = FeedConfiguration 
+    { feedTitle         = "schnizle.in - What ever comes to mind"
+    , feedDescription   = "Blog of felixsch"
+    , feedAuthorName    = "Felix S."
+    , feedAuthorEmail   = "blog@schnizle.in"
+    , feedRoot          = "http://schnizle.in"
     }

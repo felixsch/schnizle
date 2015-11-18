@@ -24,7 +24,8 @@ main = hakyllWith config $ do
   pages <- buildBlogPages "posts/*.md"
 
   -- prepare templates
-  match "templates/**" $ compile hamlCompiler
+  match ("templates/*.haml" .||. "templates/static/*.haml") $ compile hamlCompiler
+  match "templates/*.xml" $ compile templateCompiler
 
   -- render css
   match "assets/css/*.sass" $ do
@@ -46,7 +47,6 @@ main = hakyllWith config $ do
   match "posts/*.md" $ do
     route $ indexedRouteWith "blog"
     compile $ pandocCompilerWith defaultHakyllReaderOptions pandocOptions
-      >>= saveSnapshot "posts"
       >>= loadAndApplyTemplate "templates/post.haml" (postCtx tags)
       >>= loadAndApplyTemplate "templates/layout.haml" (postCtx tags)
       >>= relativizeIndexed
@@ -58,6 +58,18 @@ main = hakyllWith config $ do
       >>= loadAndApplyTemplate "templates/blog.haml" (blogCtx index pages tags)
       >>= loadAndApplyTemplate "templates/layout.haml" (blogCtx index pages tags)
       >>= relativizeIndexed
+
+  -- sitemap --------------------------------------------------------------------
+  create ["sitemap.xml"] $ do
+      route idRoute
+      compile $ makeItem ""
+          >>= loadAndApplyTemplate "templates/sitemap.xml" (sitemapCtx tags)
+
+  -- feed ------------------------------------------------------------------------
+  create ["feed.xml"] $ do
+      route idRoute
+      compile $ (recentFirst =<< loadAll ("posts/*.md" .&&. hasNoVersion))
+          >>= renderRss feedConfig defaultContext
 
   -- create static pages ---------------------------------------------------------
   create ["index.html"] $ do
@@ -93,7 +105,7 @@ postCtx tags = defaultContext
   <> dateField "month" "%m"
   <> dateField "year"  "%Y"
   <> dateField "created" "%Y-%m-%d"
-  <> relatedPostsField "related" "related" tags relatedContext
+  <> relatedPostsField "related" "related" tags relatedCtx
   <> additionalLinksField "links"
   <> modificationTimeField "modified" "%Y-%m-%d"
   where
@@ -112,10 +124,14 @@ blogCtx i pages tags = defaultContext
       start = postsPerPage * (i - 1)
       end   = postsPerPage * i
 
-relatedContext :: Context String
-relatedContext = defaultContext
+relatedCtx :: Context String
+relatedCtx = defaultContext
   <> dateField "date" "%B %d, %Y"
 
+sitemapCtx :: Tags -> Context String
+sitemapCtx tags = defaultContext
+    <> listField "posts" (postCtx tags) (recentFirst =<< loadAll "posts/*.md")
+    <> nowField "created" "%Y-%m-%d"
 
 
 

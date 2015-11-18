@@ -1,6 +1,7 @@
 module Schnizle.Fields
   ( relatedPostsField
   , additionalLinksField
+  , nowField
   ) where
 
 import Control.Arrow
@@ -9,6 +10,8 @@ import Data.List
 import Data.Typeable
 import Data.Binary 
 import Data.Function
+import Data.Time.Clock (getCurrentTime)
+import Data.Time.Format (formatTime, defaultTimeLocale)
 
 import qualified Data.Map as M
 
@@ -60,8 +63,12 @@ sortByFrequency ids = map snd $ sortBy (compare `on` fst) $
 additionalLinksField :: String -> Context String
 additionalLinksField name = listFieldWith name (field "link" (return . itemBody)) $ \item -> do
   meta <- getMetadata (itemIdentifier item)
-  unsafeCompiler $ putStrLn $ show $ meta
-  unsafeCompiler $ putStrLn $ "links: " ++ show (allLinks meta)
   mapM makeItem $ allLinks meta
   where
     allLinks m = maybe [] (map trim . splitAll " ") $ M.lookup "adds" m
+
+-- now field ------------------------------------------------------------------
+nowField :: String -> String -> Context String
+nowField key fmt = field key $ \_ ->
+  unsafeCompiler $ (formatTime defaultTimeLocale fmt <$> getCurrentTime)
+
