@@ -88,13 +88,13 @@ main = send $$ encrypt 7 $$ newMessage "Hello Haskell"
 
 With phantom types it is not possible to send a cleartext message to `stdout`.
 
-## Why not use `type` instead and what is the runtime cost?
+### Why not use `type` instead and what is the runtime cost?
 
 It's possible to use a type synonym instead of `data` or `newtype`. But it makes no sense because the compiler first expand's type synonyms. This means `Message Cleartext` and `Message Encrypted` would both be expanded to `String`, which defeats the use case of _Phantom types_.
 
 Guess what: _Phantom types_ comes without runtime costs because there are erased by the compiler at compile time. This means they come for free (at runtime).
 
-## There's another way around
+### There's another way around
 
 _Phantom types_ are not the only way to achieve this extra information in haskell's type system. With _GADTs_ it's also possible to implement the same behavior:
 

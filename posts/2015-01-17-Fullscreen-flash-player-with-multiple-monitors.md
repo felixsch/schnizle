@@ -1,7 +1,7 @@
 ---
 title: Fullscreen flash player with multiple monitors
 description: Howto hack the flash player to stay Fullscreen even if focus leaves the screen
-tags: Flash Fullscreen
+tags: Flash, Fullscreen
 ---
 
 I am usually looking documentations or livestream while procrastinating in front of my computer. Sadly, some of the websites I prefere still using the __madness__ of flash player. Not only the list of bugs is gruesome. Also the performance..

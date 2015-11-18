@@ -1,7 +1,7 @@
 ---
 title: Forward X11 from a ipv6 host to a ipv4 client
 description: ssh x11 forwarding from a client to a host via gateway
-tags: ssh x11 forwarding ipv6
+tags: SSH, X11 forwarding, IPv6
 ---
 Since my new ISP uses ipv6 I was confronted with the problem: How should I use my remote x11 window to test software (Xephyr in my case) when the clients ISP does not support ipv6.
 

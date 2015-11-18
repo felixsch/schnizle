@@ -37,6 +37,12 @@ main = hakyllWith config $ do
     compile copyFileCompiler
 
   -- create blog ----------------------------------------------------------------
+
+  match "posts/*.md" $ version "related" $ do
+    route idRoute
+    compile $ pandocCompilerWith defaultHakyllReaderOptions pandocOptions
+      >>= relativizeUrls
+
   match "posts/*.md" $ do
     route $ indexedRouteWith "blog"
     compile $ pandocCompilerWith defaultHakyllReaderOptions pandocOptions
@@ -44,6 +50,7 @@ main = hakyllWith config $ do
       >>= loadAndApplyTemplate "templates/post.haml" (postCtx tags)
       >>= loadAndApplyTemplate "templates/layout.haml" (postCtx tags)
       >>= relativizeIndexed
+
 
   paginateRules pages $ \index pattern -> do
     route idRoute
@@ -86,7 +93,8 @@ postCtx tags = defaultContext
   <> dateField "month" "%m"
   <> dateField "year"  "%Y"
   <> dateField "created" "%Y-%m-%d"
-  <> relatedPostsField "related" 2 tags (postCtx tags)
+  <> relatedPostsField "related" "related" tags relatedContext
+  <> additionalLinksField "links"
   <> modificationTimeField "modified" "%Y-%m-%d"
   where
     tagList = intercalate "," $ map fst $ tagsMap tags
@@ -98,12 +106,16 @@ blogCtx i pages tags = defaultContext
   <> modificationTimeField "modified" "%Y-%m-%d"
   <> paginateContext pages i
     where
-      posts = takeFromTo <$> (recentFirst =<< loadAll "posts/*.md")
+      posts = takeFromTo <$> (recentFirst =<< loadAll ("posts/*.md" .&&. hasNoVersion))
       takeFromTo = drop start . take end
 
       start = postsPerPage * (i - 1)
       end   = postsPerPage * i
-      
+
+relatedContext :: Context String
+relatedContext = defaultContext
+  <> dateField "date" "%B %d, %Y"
+
 
 
 

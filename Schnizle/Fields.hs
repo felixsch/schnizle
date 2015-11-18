@@ -1,53 +1,65 @@
 module Schnizle.Fields
   ( relatedPostsField
+  , additionalLinksField
   ) where
+
+import Control.Arrow
 
 import Data.List
 import Data.Typeable
 import Data.Binary 
+import Data.Function
+
 import qualified Data.Map as M
 
 import Hakyll
 
 
-relatedPostsField :: (Typeable a, Binary a) => String -> Int -> Tags -> Context a -> Context b
-relatedPostsField name n tags ctx = listFieldWith name ctx $ \item -> do
-  needle <- getTags $ itemIdentifier item
-  mapM load $ take n $ sortByFrequency $ selectTags needle tags
+-- related links -------------------------------------------------------------
+type Version = String
+
+relatedPostsField :: (Typeable a, Binary a) => String -> Version -> Tags -> Context a -> Context b
+relatedPostsField name version tags ctx = listFieldWith name ctx $ \item -> do
+  needle <- tagsByItem item 
+  loadAll $ toPatternWith version (related item needle)
+
+  where
+    related item needle = take 2 $ 
+      filterIdentifier item $ bestRelated needle tags
+
+
+filterIdentifier :: Item a -> [Identifier] -> [Identifier]
+filterIdentifier item = filter (itemIdentifier item /=)
+
+
+bestRelated :: [String] -> Tags -> [Identifier]
+bestRelated needle tags = (sortByFrequency $ selectTags needle tags) ++ (nub $ concatMap snd $ tagsMap tags)
+
+
+tagsByItem :: Item a -> Compiler [String]
+tagsByItem = getTags . itemIdentifier
+
+
+toPatternWith :: Version -> [Identifier] -> Pattern
+toPatternWith version = fromList . map (setVersion $ Just version)
+
 
 selectTags :: [String] -> Tags -> [Identifier]
 selectTags needle tags = concatMap snd $ onlyNeeded (tagsMap tags)
   where
     onlyNeeded :: [(String, [Identifier])] -> [(String, [Identifier])]
-    onlyNeeded = filter (\i -> (fst i) `elem` needle)
+    onlyNeeded = filter (\i -> fst i `elem` needle)
+
 
 sortByFrequency :: [Identifier] -> [Identifier]
-sortByFrequency ids = map snd $ sortBy (\a b -> compare (fst a) (fst b)) $
-  map (\l -> (length l, head l)) (group (sort ids))
+sortByFrequency ids = map snd $ sortBy (compare `on` fst) $
+  map (length &&& head) (group (sort ids))
 
+-- additional links -----------------------------------------------------------
 
-{-
-sortMatchedTags :: Tags -> [String] -> [Identifier]
-sortMatchedTags tags needle = map (fromFilePath . fst) $ 
-  sortBy cmp $ 
-    tagsMap tags
+additionalLinksField :: String -> Context String
+additionalLinksField name = listFieldWith name (field "link" (return . itemBody)) $ \item -> do
+  meta <- getMetadata (itemIdentifier item)
+  mapM makeItem $ allLinks meta
   where
-    cmp :: (String, [Identifier]) -> (String, [Identifier]) -> Ordering
-    cmp a b         = compare (matched a) (matched b)
-
-    matched :: (String, [Identifier]) -> Int
-    matched (_,x)   = sum $ map (\i -> asInteger $ i `elem` needle) x
-
-    asInteger :: Bool -> Int
-    asInteger True  = 0
-    asInteger False = 1
-
-
-getAdditionalLinks :: MonadMetadata m => Identifier -> m [String]
-getAdditionalLinks identifier = do
-    metadata <- getMetadata identifier
-    return $ maybe [] (map trim . splitAll "|") $ M.lookup "links" metadata
-
--}
-
-
+    allLinks m = maybe [] (map trim . splitAll "|") $ M.lookup "links" m

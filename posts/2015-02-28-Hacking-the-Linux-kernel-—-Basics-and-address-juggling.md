@@ -1,7 +1,7 @@
 ---
 title: Hacking the Linux kernel — Basics and address juggling
 description: A introduction to kernel module developing by writing a kernel hack which hijacks the sys_newuname call of the kernel.
-tags: C Linux Kernel
+tags: C, Linux, Kernel
 ---
 
 Lately I have come to the point where I had to ask myself: How is this kernel thing really working. After some days of thinking about what could I implement there no idea has come up. (Ok, ok there was: a simple kernel network package filter) I decided to take the vicious way: A kernel module which should be able to hide himself from seen from inside the system + a remote shell started by a "magic" packet.

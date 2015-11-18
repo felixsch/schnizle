@@ -1,7 +1,7 @@
 ---
 title: Howto: Setup mutt (with native imap + msmpt + gpg + pass)
 description: Howto setup mutt properly using nativ imap, msmpt, gpg and password encryption via a password manager
-tags: Application Linux Mutt
+tags: Application, Linux, Mutt
 ---
 
 __If you ever tried to setup _mutt_? You might encountered problems with all the configuration stuff which is needed to setup _mutt_ properly. For a long time I've been searching a solution for viewing emails remotely. That's why I give mutt another chance, to prove its greatness.__
@@ -10,7 +10,7 @@ __If you ever tried to setup _mutt_? You might encountered problems with all the
 ![](http://none.io/share/mutt.png)
 
 
-##Configure...
+###Configure...
 
 As already mentioned the most tedious part of using mutt is to grasp the configuration which is needed to bring mutt in a state where it is running fine.
 What I wanted to configure:
@@ -34,7 +34,7 @@ __My folder structure looks like:__
      |- mutt-colors-blue.muttrc
 ~~~
 
-##Basic configuration
+###Basic configuration
 
 Before we setup gpg, pass and multi accounts we setup the  basic configurations:
 
@@ -77,7 +77,7 @@ set pager_index_lines=10
 
 ~~~
 
-##GPG
+###GPG
 Fortunately now days most distributions already come with a handy configuration which makes configuring mutt really easy. In my case (Archlinux) it was just adding
 
     source /etc/Muttrc.gpg.dist
@@ -85,7 +85,7 @@ Fortunately now days most distributions already come with a handy configuration 
 to my `~/.mutt/muttrc`.
 
 
-##Password manager pass
+###Password manager pass
 
 I use [pass](http://www.passwordstore.org/) as password manager.
 

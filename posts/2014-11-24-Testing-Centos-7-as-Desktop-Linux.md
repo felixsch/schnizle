@@ -1,7 +1,7 @@
 ---
 title: Testing Centos 7 as Desktop Linux
 description: Testing Centos 7 as Desktop Linux for daily use
-tags: Linux Centos
+tags: Linux, Centos
 ---
 
 __After using Fedora for quite a time, I wanted to test Centos for my workstation. Centos is a really nice Linux Distribution which I already use as a server operating system. Now I want to know how it performs as Desktop Distribution.__
@@ -16,7 +16,7 @@ Centos is a stable _rpm_ based Linux Distribution which uses sources derived fro
 
 With Centos 7 _Initd_ was replaced with _systemd_ and the Gnome Desktop got a major version bump (from v2.x to v3.x). Centos now supports the _XFS_ file system.
 
-##_Let's start testing Centos 7:_
+###_Let's start testing Centos 7:_
 
 
 Here are the things I usually doing on the desktop machine:
@@ -25,7 +25,7 @@ Here are the things I usually doing on the desktop machine:
 * Using `VirtualBox` to test some distributions or using snapshots to test software under various conditions
 * Playing games via _Steam_ (which requires proprietary NVidia video driver)
 
-##Step 1: Download and Installation
+###Step 1: Download and Installation
 I selected a net install ISO from [http://isoredirect.centos.org/centos/7/isos/x86_64/](http://isoredirect.centos.org/centos/7/isos/x86_64/).
 To install you need to input a package mirror where the packages should be downloaded. (A source could be [http://mirror.centos.org/centos/7/os/x86_64/](http://mirror.centos.org/centos/7/os/x86_64/)).
 
@@ -33,7 +33,7 @@ Centos uses the same installer as Fedora. The installer creates a default partit
 
 Two clicks later and 2 min waiting.. Voila ready to reboot!
 
-##Step 2: Third-Party repositories and proprietary NVidia video driver
+###Step 2: Third-Party repositories and proprietary NVidia video driver
 
 Because the Centos basic repository does not include a lot of software I need I activated a few third-party repositories:
 
@@ -54,7 +54,7 @@ Finally I added _nux-desktop_ for packages of _vlc_ and _steam_:
     rpm -Uvh http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-1.el7.nux.noarch.rpm
 
 
-##Step 3: Installing Xfce and NVidia drivers
+###Step 3: Installing Xfce and NVidia drivers
 
 I neither like Gnome or KDE. That is why I always install Xfce as desktop environment.
 
@@ -76,14 +76,14 @@ Before I rebooted I enabled _X_ at start-up.
 Reboot!
 
 
-##Step 4: Install all the things
+###Step 4: Install all the things
 After reboot I needed to setup icons and backgrounds. I also downloaded and installed the greybird theme.
 
 Now I installed all things I need:
 
     yum install git vlc gvim ghc cabal-install firefox tmux steam ...
 
-##Step 5: Haskell Environment
+###Step 5: Haskell Environment
 Centos 7 does not provide Haskell support from core. Fortunately Fedora does. That's why EPEL contains all needed packages to setup a Haskell environment.
 
 EPEL currently ships: __ghc 7.6.3__ and __cabal-install 1.16.0.2__.
@@ -97,7 +97,7 @@ I updated _cabal-install_ and removed the package with yum because I want to use
 
 And added `$$HOME/.cabal/bin` to my _$$PATH_.
 
-##Step 6: VirtualBox
+###Step 6: VirtualBox
 
 To use VirtualBox I needed to enable the VirtualBox own `rpm` repository [www.virtualbox.org](www.virtualbox.org).
 
@@ -117,7 +117,7 @@ and VirtualBox:
 
 Ready to rumble!
 
-#Conclusion
+##Conclusion
 
 Centos is an Enterprise Operating system which focuses on business and server applications. This means the development focus lies in stable server and basic office software. The result:
 

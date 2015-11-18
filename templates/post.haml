@@ -3,7 +3,34 @@
     .col-md-8.col-md-offset-1
       %h1.article-title{:itemprop => "name"} $title$
   .row
-    .col-md-8.col-md-offset-1.article{:itemprop => "articleBody"}
+    .col-md-7.col-md-offset-1.article{:itemprop => "articleBody"}
       $body$
-    .col-md-2
-      fooo
+    .col-md-2.col-md-offset-1
+      .row
+        %img.img-responsive.img-circle{ :src => "/assets/img/me.png" }
+        %p.top-spacer
+          Living, learning and programming in Nuremburg. Trainee at SUSE.
+        %p
+          I'm addicted to learn more about computers and cooking. I believe beeing a developer means to alway learn something new and be open-minded to changes.
+          %a{:href => "/about"}
+            More?
+      $if(links)$
+      .row
+        %h2 Addition links
+        $for(links)$
+        %p
+          %a{:href => "$link$"} $link$
+        $endfor$
+      $endif$
+
+      $if(related)$
+      .row
+        %h2 Other posts
+
+        $for(related)$
+        .top-spacer
+          %h4
+            %a{:href => "$url$"} $title$
+          %p $date$
+        $endfor$
+      $endif$
