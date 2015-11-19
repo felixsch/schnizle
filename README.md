@@ -1,5 +1,8 @@
-# Repository of my personal blog written in hakyll
+
+# Repository of my personal blog written in hakyll 
+
 ![image of schnizle.in](http://schnizle.in/share/schnizle.jpg)
+([http://schnizle.in](http://schnizle.in))
 ## Features
  - sitemap & feet (schnizle.hs)
  - related links (Schnizle/Field.hs)
