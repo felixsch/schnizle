@@ -6,7 +6,7 @@
     .col-md-7.col-md-offset-1.article{:itemprop => "articleBody"}
       $body$
     .col-md-2.col-md-offset-1
-      .row
+      .row.hidden-xs.hidden-sm
         %img.img-responsive.img-circle{ :src => "/assets/img/me.png" }
         %p.top-spacer
           Living, learning and programming in Nuremburg. Trainee at SUSE.
@@ -15,7 +15,7 @@
           %a{:href => "/about"}
             More?
       $if(links)$
-      .row
+      .row.hidden-xs.hidden-sm
         %h2 Addition links
         $for(links)$
         .top-spacer

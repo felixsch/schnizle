@@ -25,7 +25,7 @@ main = hakyllWith config $ do
 
   -- prepare templates
   match ("templates/*.haml" .||. "templates/static/*.haml") $ compile hamlCompiler
-  match "templates/*.xml" $ compile templateCompiler
+  match ("templates/*.xml" .||. "templates/*.html") $ compile templateCompiler
 
   -- render css
   match "assets/css/*.sass" $ do
@@ -40,9 +40,9 @@ main = hakyllWith config $ do
   -- create blog ----------------------------------------------------------------
 
   match "posts/*.md" $ version "related" $ do
-    route idRoute
+    route $ indexedRouteWith "blog"
     compile $ pandocCompilerWith defaultHakyllReaderOptions pandocOptions
-      >>= relativizeUrls
+      >>= relativizeIndexed
 
   match "posts/*.md" $ do
     route $ indexedRouteWith "blog"
@@ -64,6 +64,7 @@ main = hakyllWith config $ do
       route idRoute
       compile $ makeItem ""
           >>= loadAndApplyTemplate "templates/sitemap.xml" (sitemapCtx tags)
+          >>= relativizeIndexed
 
   -- feed ------------------------------------------------------------------------
   create ["feed.xml"] $ do
@@ -130,9 +131,6 @@ relatedCtx = defaultContext
 
 sitemapCtx :: Tags -> Context String
 sitemapCtx tags = defaultContext
-    <> listField "posts" (postCtx tags) (recentFirst =<< loadAll "posts/*.md")
+    <> listField "posts" (postCtx tags) (recentFirst =<< loadAll ("posts/*.md" .&&. hasNoVersion))
     <> nowField "created" "%Y-%m-%d"
-
-
-
 
