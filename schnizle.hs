@@ -40,8 +40,9 @@ main = hakyllWith config $ do
   -- create blog ----------------------------------------------------------------
 
   match "posts/*.md" $ version "related" $ do
-    route $ indexedRouteWith "blog"
+    route $ indexedRouteWith "blog/related"
     compile $ pandocCompilerWith defaultHakyllReaderOptions pandocOptions
+      >>= loadAndApplyTemplate "templates/layout.haml" defaultContext
       >>= relativizeIndexed
 
   match "posts/*.md" $ do

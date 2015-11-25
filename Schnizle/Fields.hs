@@ -17,13 +17,51 @@ import qualified Data.Map as M
 
 import Hakyll
 
+import Control.Monad
+
 
 -- related links -------------------------------------------------------------
-type Version = String
+type Score = Int
+
+data Related = Related
+  { relatedId    :: Identifier
+  , relatedUrl   :: String
+  , relatedDate  :: String
+  , relatedTitle :: String }
+
+type RelatedLinks = [Related]
+
+buildRelatedLinksWith :: MonadMetaData m => Pattern -> (Related -> Int) -> m RelatedLinks
+buildRelatedLinksWith pattern rate = do
+  matches <- getMatches pattern
+  related <- mapM genRelated matches
+  return $ sortByScore $ map (\r -> ())
+
+  
+genRelated :: MonadMetaData m => Item a -> m Related
+genRelated item = do
+  where 
+    ident = return $ itemIdentifier item
+    url   = maybe empty toUrl <$> getRoute $ itemIdentifier item
+    date  = 
+    
+    
+
+  
 
 relatedPostsField :: (Typeable a, Binary a) => String -> Version -> Tags -> Context a -> Context b
 relatedPostsField name version tags ctx = listFieldWith name ctx $ \item -> do
   needle <- tagsByItem item 
+  unsafeCompiler $ putStrLn " ----------- "
+  unsafeCompiler $ putStrLn $ " -- item:   " ++ show (itemIdentifier item)
+  unsafeCompiler $ putStrLn $ " -- needle: " ++ show needle
+  unsafeCompiler $ putStrLn $ "\n -- bestRelated: "
+  unsafeCompiler $ forM_ (bestRelated needle tags) print
+  unsafeCompiler $ putStrLn $ "\n -- tag suggestion: "
+  unsafeCompiler $ forM_ (selectTags needle tags) print
+  unsafeCompiler $ putStrLn $ "\n -- related: "
+  unsafeCompiler $ forM_ (related item needle) print
+  unsafeCompiler $ putStrLn $ "\n\n\n"
   loadAll $ toPatternWith version (related item needle)
 
   where
@@ -36,7 +74,7 @@ filterIdentifier item = filter (itemIdentifier item /=)
 
 
 bestRelated :: [String] -> Tags -> [Identifier]
-bestRelated needle tags = (sortByFrequency $ selectTags needle tags) ++ (nub $ concatMap snd $ tagsMap tags)
+bestRelated needle tags = nub $ (sortByFrequency $ selectTags needle tags) ++ (concatMap snd $ tagsMap tags)
 
 
 tagsByItem :: Item a -> Compiler [String]
