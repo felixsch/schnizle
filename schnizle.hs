@@ -22,6 +22,7 @@ main = hakyllWith config $ do
 
   tags  <- buildTags "posts/*.md" $ fromCapture "category/*/index.html"
   pages <- buildBlogPages "posts/*.md"
+  related <- buildRelatedLinks "posts/*.md"
 
   -- prepare templates
   match ("templates/*.haml" .||. "templates/static/*.haml") $ compile hamlCompiler
@@ -39,38 +40,32 @@ main = hakyllWith config $ do
 
   -- create blog ----------------------------------------------------------------
 
-  match "posts/*.md" $ version "related" $ do
-    route $ indexedRouteWith "blog/related"
-    compile $ pandocCompilerWith defaultHakyllReaderOptions pandocOptions
-      >>= loadAndApplyTemplate "templates/layout.haml" defaultContext
-      >>= relativizeIndexed
-
   match "posts/*.md" $ do
     route $ indexedRouteWith "blog"
     compile $ pandocCompilerWith defaultHakyllReaderOptions pandocOptions
-      >>= loadAndApplyTemplate "templates/post.haml" (postCtx tags)
-      >>= loadAndApplyTemplate "templates/layout.haml" (postCtx tags)
+      >>= loadAndApplyTemplate "templates/post.haml" (postCtx tags related)
+      >>= loadAndApplyTemplate "templates/layout.haml" (postCtx tags related)
       >>= relativizeIndexed
 
 
   paginateRules pages $ \index pattern -> do
     route idRoute
     compile $ makeItem ""
-      >>= loadAndApplyTemplate "templates/blog.haml" (blogCtx index pages tags)
-      >>= loadAndApplyTemplate "templates/layout.haml" (blogCtx index pages tags)
+      >>= loadAndApplyTemplate "templates/blog.haml" (blogCtx index pages tags related)
+      >>= loadAndApplyTemplate "templates/layout.haml" (blogCtx index pages tags related)
       >>= relativizeIndexed
 
   -- sitemap --------------------------------------------------------------------
   create ["sitemap.xml"] $ do
       route idRoute
       compile $ makeItem ""
-          >>= loadAndApplyTemplate "templates/sitemap.xml" (sitemapCtx tags)
+          >>= loadAndApplyTemplate "templates/sitemap.xml" (sitemapCtx tags related)
           >>= relativizeIndexed
 
   -- feed ------------------------------------------------------------------------
   create ["feed.xml"] $ do
       route idRoute
-      compile $ (recentFirst =<< loadAll ("posts/*.md" .&&. hasNoVersion))
+      compile $ (recentFirst =<< loadAll "posts/*.md")
           >>= renderRss feedConfig defaultContext
 
   -- create static pages ---------------------------------------------------------
@@ -98,8 +93,8 @@ buildBlogPages pattern = buildPaginateWith (return . paginateEvery postsPerPage)
        then fromFilePath "blog/index.html"
        else fromFilePath $ "blog/" ++ show index ++ "/index.html"
 
-postCtx :: Tags -> Context String
-postCtx tags = defaultContext
+postCtx :: Tags -> RelatedLinks -> Context String
+postCtx tags related = defaultContext
   <> tagsField "tags" tags
   <> constField "keywords" tagList
   <> dateField "date" "%B %d, %Y"
@@ -107,31 +102,27 @@ postCtx tags = defaultContext
   <> dateField "month" "%m"
   <> dateField "year"  "%Y"
   <> dateField "created" "%Y-%m-%d"
-  <> relatedPostsField "related" "related" tags relatedCtx
+  <> relatedLinksField 2 "related" related defaultRelatedContext
   <> additionalLinksField "links"
   <> modificationTimeField "modified" "%Y-%m-%d"
   where
     tagList = intercalate "," $ map fst $ tagsMap tags
 
-blogCtx :: PageNumber -> Paginate -> Tags -> Context String
-blogCtx i pages tags = defaultContext
+blogCtx :: PageNumber -> Paginate -> Tags -> RelatedLinks -> Context String
+blogCtx i pages tags related = defaultContext
   <> constField "title" "what ever comes to mind"
-  <> listField "posts" (postCtx tags) posts
+  <> listField "posts" (postCtx tags related) posts
   <> modificationTimeField "modified" "%Y-%m-%d"
   <> paginateContext pages i
     where
-      posts = takeFromTo <$> (recentFirst =<< loadAll ("posts/*.md" .&&. hasNoVersion))
+      posts = takeFromTo <$> (recentFirst =<< loadAll "posts/*.md")
       takeFromTo = drop start . take end
 
       start = postsPerPage * (i - 1)
       end   = postsPerPage * i
 
-relatedCtx :: Context String
-relatedCtx = defaultContext
-  <> dateField "date" "%B %d, %Y"
-
-sitemapCtx :: Tags -> Context String
-sitemapCtx tags = defaultContext
-    <> listField "posts" (postCtx tags) (recentFirst =<< loadAll ("posts/*.md" .&&. hasNoVersion))
+sitemapCtx :: Tags -> RelatedLinks -> Context String
+sitemapCtx tags related = defaultContext
+    <> listField "posts" (postCtx tags related) (recentFirst =<< loadAll "posts/*.md")
     <> nowField "created" "%Y-%m-%d"
 

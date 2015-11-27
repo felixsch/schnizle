@@ -1,19 +1,30 @@
 module Schnizle.Fields
-  ( relatedPostsField
+  ( RelatedLinks(..)
+  , buildRelatedLinks
+  , relatedLinksField
+  , relatedUrlField, relatedTitleField, relatedDateField
+  , defaultRelatedContext
   , additionalLinksField
   , nowField
   ) where
 
 import Control.Arrow
 
+import Data.Monoid
+import Data.Maybe
 import Data.List
 import Data.Typeable
+import Data.Foldable
 import Data.Binary 
 import Data.Function
-import Data.Time.Clock (getCurrentTime)
+
+import Data.Time.Clock (getCurrentTime, UTCTime(..))
 import Data.Time.Format (formatTime, defaultTimeLocale)
 
+import System.FilePath.Posix
+
 import qualified Data.Map as M
+import qualified Data.Sequence as S
 
 import Hakyll
 
@@ -21,76 +32,74 @@ import Control.Monad
 
 
 -- related links -------------------------------------------------------------
-type Score = Int
+type RelatedTags = M.Map String [Identifier]
+type RelatedMap  = M.Map Identifier Related
 
 data Related = Related
   { relatedId    :: Identifier
-  , relatedUrl   :: String
-  , relatedDate  :: String
+  , relatedDate  :: UTCTime
   , relatedTitle :: String }
 
-type RelatedLinks = [Related]
+data RelatedLinks = RelatedLinks RelatedMap RelatedTags
 
-buildRelatedLinksWith :: MonadMetaData m => Pattern -> (Related -> Int) -> m RelatedLinks
-buildRelatedLinksWith pattern rate = do
+
+buildRelatedTags :: [Identifier] -> RelatedTags -> Rules RelatedTags
+buildRelatedTags []         tags = return tags
+buildRelatedTags (id':ids') tags = buildRelatedTags ids' =<< (foldl addTag tags <$> getTags id')
+  where
+    addTag tags tag = M.insertWith (++) tag [id'] tags
+
+buildRelatedMap :: [Identifier] -> Rules RelatedMap
+buildRelatedMap ids' = foldlM addRelated M.empty ids'
+  where
+    addRelated :: RelatedMap -> Identifier -> Rules RelatedMap
+    addRelated map' id' = do
+      date  <- getItemUTC defaultTimeLocale id'
+      title <- return $ takeBaseName $ toFilePath id'
+      return $ M.insert id' (Related id' date title) map'
+
+buildRelatedLinks :: Pattern -> Rules RelatedLinks
+buildRelatedLinks pattern = do
   matches <- getMatches pattern
-  related <- mapM genRelated matches
-  return $ sortByScore $ map (\r -> ())
+  RelatedLinks <$> buildRelatedMap matches <*> buildRelatedTags matches M.empty
 
-  
-genRelated :: MonadMetaData m => Item a -> m Related
-genRelated item = do
-  where 
-    ident = return $ itemIdentifier item
-    url   = maybe empty toUrl <$> getRoute $ itemIdentifier item
-    date  = 
-    
-    
 
-  
+relatedDateField :: String -> String -> Context Related
+relatedDateField name fmt = field name (return . format . relatedDate . itemBody)
+  where
+    format = formatTime defaultTimeLocale fmt
 
-relatedPostsField :: (Typeable a, Binary a) => String -> Version -> Tags -> Context a -> Context b
-relatedPostsField name version tags ctx = listFieldWith name ctx $ \item -> do
-  needle <- tagsByItem item 
-  unsafeCompiler $ putStrLn " ----------- "
-  unsafeCompiler $ putStrLn $ " -- item:   " ++ show (itemIdentifier item)
-  unsafeCompiler $ putStrLn $ " -- needle: " ++ show needle
-  unsafeCompiler $ putStrLn $ "\n -- bestRelated: "
-  unsafeCompiler $ forM_ (bestRelated needle tags) print
-  unsafeCompiler $ putStrLn $ "\n -- tag suggestion: "
-  unsafeCompiler $ forM_ (selectTags needle tags) print
-  unsafeCompiler $ putStrLn $ "\n -- related: "
-  unsafeCompiler $ forM_ (related item needle) print
-  unsafeCompiler $ putStrLn $ "\n\n\n"
-  loadAll $ toPatternWith version (related item needle)
+relatedTitleField :: String -> Context Related
+relatedTitleField name = field name (return . relatedTitle . itemBody)
+
+relatedUrlField :: String -> Context Related
+relatedUrlField name = field name $ \item -> genUrl $ relatedId $ itemBody item
+  where
+    genUrl id = maybe "#" toUrl <$> getRoute id
+
+defaultRelatedContext :: Context Related
+defaultRelatedContext = relatedTitleField "title"
+                     <> relatedUrlField "url"
+                     <> relatedDateField "date" "%B %d, %Y"
+                     <> missingField
+
+relatedLinksField :: Int -> String -> RelatedLinks -> Context Related -> Context a
+relatedLinksField n name (RelatedLinks map' tags') ctx = listFieldWith name ctx $ \item -> do
+  needle  <- getTags $ itemIdentifier item
+  ids     <- return $ clean item $ findRelatedByTags tags' needle 
+  related <- return $ fetchRelated map' $ clearIds $ sortByFrequency ids
+  return []
 
   where
-    related item needle = take 2 $ 
-      filterIdentifier item $ bestRelated needle tags
+    clean item = filter (itemIdentifier item /=)
+    clearIds   = take n . nub
+    
 
+findRelatedByTags :: RelatedTags -> [String] -> [Identifier]
+findRelatedByTags map' tags = concat $ catMaybes $ map (flip M.lookup map') tags
 
-filterIdentifier :: Item a -> [Identifier] -> [Identifier]
-filterIdentifier item = filter (itemIdentifier item /=)
-
-
-bestRelated :: [String] -> Tags -> [Identifier]
-bestRelated needle tags = nub $ (sortByFrequency $ selectTags needle tags) ++ (concatMap snd $ tagsMap tags)
-
-
-tagsByItem :: Item a -> Compiler [String]
-tagsByItem = getTags . itemIdentifier
-
-
-toPatternWith :: Version -> [Identifier] -> Pattern
-toPatternWith version = fromList . map (setVersion $ Just version)
-
-
-selectTags :: [String] -> Tags -> [Identifier]
-selectTags needle tags = concatMap snd $ onlyNeeded (tagsMap tags)
-  where
-    onlyNeeded :: [(String, [Identifier])] -> [(String, [Identifier])]
-    onlyNeeded = filter (\i -> fst i `elem` needle)
-
+fetchRelated :: RelatedMap -> [Identifier] -> [Related]
+fetchRelated map' = catMaybes . map (flip M.lookup map')
 
 sortByFrequency :: [Identifier] -> [Identifier]
 sortByFrequency ids = map snd $ sortBy (compare `on` fst) $
