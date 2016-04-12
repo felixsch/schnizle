@@ -1,18 +1,19 @@
 {-# LANGUAGE OverloadedStrings #-}
 
+import           Control.Monad.Trans
 
-import Control.Monad (forM_)
-import Data.Monoid
-import Data.List
+import           Control.Monad       (forM_)
+import           Data.List
+import           Data.Monoid
 
-import Hakyll
-import Hakyll.Web.Paginate
-import Hakyll.Web.Sass
+import           Hakyll
+import           Hakyll.Web.Paginate
+import           Hakyll.Web.Sass
 
-import Schnizle.Haml
-import Schnizle.Config
-import Schnizle.Indexed
-import Schnizle.Fields
+import           Schnizle.Config
+import           Schnizle.Fields
+import           Schnizle.Haml
+import           Schnizle.Indexed
 
 postsPerPage :: Int
 postsPerPage = 10
@@ -89,7 +90,7 @@ main = hakyllWith config $ do
 -- blog --------------------------------------------------------------------------
 buildBlogPages :: (MonadMetadata m) => Pattern -> m Paginate
 buildBlogPages pattern = buildPaginateWith (return . paginateEvery postsPerPage) pattern $ \index ->
-    if index == 1 
+    if index == 1
        then fromFilePath "blog/index.html"
        else fromFilePath $ "blog/" ++ show index ++ "/index.html"
 

@@ -8,27 +8,27 @@ module Schnizle.Fields
   , nowField
   ) where
 
-import Control.Arrow
+import           Control.Arrow
 
-import Data.Monoid
-import Data.Maybe
-import Data.List
-import Data.Typeable
-import Data.Foldable
-import Data.Binary 
-import Data.Function
+import           Data.Binary
+import           Data.Foldable
+import           Data.Function
+import           Data.List
+import           Data.Maybe
+import           Data.Monoid
+import           Data.Typeable
 
-import Data.Time.Clock (getCurrentTime, UTCTime(..))
-import Data.Time.Format (formatTime, defaultTimeLocale)
+import           Data.Time.Clock       (UTCTime (..), getCurrentTime)
+import           Data.Time.Format      (defaultTimeLocale, formatTime)
 
-import System.FilePath.Posix
+import           System.FilePath.Posix
 
-import qualified Data.Map as M
-import qualified Data.Sequence as S
+import qualified Data.Map              as M
+import qualified Data.Sequence         as S
 
-import Hakyll
+import           Hakyll
 
-import Control.Monad
+import           Control.Monad
 
 
 -- related links -------------------------------------------------------------
@@ -39,8 +39,10 @@ data Related = Related
   { relatedId    :: Identifier
   , relatedDate  :: UTCTime
   , relatedTitle :: String }
+  deriving Show
 
 data RelatedLinks = RelatedLinks RelatedMap RelatedTags
+  deriving Show
 
 
 buildRelatedTags :: [Identifier] -> RelatedTags -> Rules RelatedTags
@@ -55,7 +57,7 @@ buildRelatedMap ids' = foldlM addRelated M.empty ids'
     addRelated :: RelatedMap -> Identifier -> Rules RelatedMap
     addRelated map' id' = do
       date  <- getItemUTC defaultTimeLocale id'
-      title <- return $ takeBaseName $ toFilePath id'
+      title <- getMetadataField' id' "title"
       return $ M.insert id' (Related id' date title) map'
 
 buildRelatedLinks :: Pattern -> Rules RelatedLinks
@@ -86,14 +88,15 @@ defaultRelatedContext = relatedTitleField "title"
 relatedLinksField :: Int -> String -> RelatedLinks -> Context Related -> Context a
 relatedLinksField n name (RelatedLinks map' tags') ctx = listFieldWith name ctx $ \item -> do
   needle  <- getTags $ itemIdentifier item
-  ids     <- return $ clean item $ findRelatedByTags tags' needle 
+  ids     <- return $ clean item $ findRelatedByTags tags' needle
   related <- return $ fetchRelated map' $ clearIds $ sortByFrequency ids
-  return []
+  return $ map relatedToItem related
 
   where
     clean item = filter (itemIdentifier item /=)
     clearIds   = take n . nub
-    
+    relatedToItem related = Item (relatedId related) related
+
 
 findRelatedByTags :: RelatedTags -> [String] -> [Identifier]
 findRelatedByTags map' tags = concat $ catMaybes $ map (flip M.lookup map') tags
