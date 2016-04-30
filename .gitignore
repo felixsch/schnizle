@@ -3,5 +3,6 @@ cabal.sandbox.config
 .cabal-sandbox
 _site
 _cache
+.stack-work
 
 

@@ -1,17 +1,15 @@
 #!/usr/bin/env bash
 
-executable=dist/build/schnizle/schnizle
-
 function schnizle_exec {
   if [ ! -e $executable ]; then
     echo "[schnizle] binary is not build yet... building now.."
     echo ""
-    cabal build
+    stack build
     echo "...done"
     echo ""
   fi
 
-  $executable $@
+  stack exec schnizle $@
 }
 
 
@@ -34,10 +32,10 @@ shift
 
 case $action in
   "build"|"b")
-    cabal build
+    stack build
     ;;
   "preview"|"p")
-    cabal build
+    stack build
     schnizle_exec clean
     schnizle_exec watch
     ;;
